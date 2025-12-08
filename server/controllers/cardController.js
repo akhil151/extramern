@@ -1,0 +1,111 @@
+import Card from "../models/Card.js"
+import List from "../models/List.js"
+
+export const createCard = async (req, res) => {
+  try {
+    const { title, description, list, board } = req.body
+
+    const card = new Card({
+      title,
+      description,
+      list,
+      board,
+    })
+
+    const savedCard = await card.save()
+    await savedCard.populate("assignees")
+
+    await List.findByIdAndUpdate(list, { $push: { cards: savedCard._id } })
+
+    res.status(201).json(savedCard)
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create card", error: error.message })
+  }
+}
+
+export const updateCard = async (req, res) => {
+  try {
+    const { title, description, dueDate, labels } = req.body
+    const card = await Card.findByIdAndUpdate(
+      req.params.id,
+      { title, description, dueDate, labels },
+      { new: true },
+    ).populate("assignees")
+
+    res.json(card)
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update card", error: error.message })
+  }
+}
+
+export const deleteCard = async (req, res) => {
+  try {
+    const card = await Card.findById(req.params.id)
+
+    if (!card) {
+      return res.status(404).json({ message: "Card not found" })
+    }
+
+    await List.findByIdAndUpdate(card.list, { $pull: { cards: req.params.id } })
+    await Card.findByIdAndDelete(req.params.id)
+
+    res.json({ message: "Card deleted" })
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete card", error: error.message })
+  }
+}
+
+export const moveCard = async (req, res) => {
+  try {
+    const { fromList, toList, position } = req.body
+
+    const card = await Card.findByIdAndUpdate(req.params.id, { list: toList }, { new: true }).populate("assignees")
+
+    if (fromList === toList) {
+      // Reorder within the same list
+      const list = await List.findById(fromList)
+      const cardIndex = list.cards.indexOf(req.params.id)
+      if (cardIndex > -1) {
+        list.cards.splice(cardIndex, 1)
+        list.cards.splice(position, 0, req.params.id)
+        await list.save()
+      }
+    } else {
+      // Move to different list
+      await List.findByIdAndUpdate(fromList, { $pull: { cards: req.params.id } })
+      const toListDoc = await List.findById(toList)
+      toListDoc.cards.splice(position, 0, req.params.id)
+      await toListDoc.save()
+    }
+
+    res.json(card)
+  } catch (error) {
+    res.status(500).json({ message: "Failed to move card", error: error.message })
+  }
+}
+
+export const addAssignee = async (req, res) => {
+  try {
+    const { userId } = req.body
+    const card = await Card.findByIdAndUpdate(req.params.id, { $push: { assignees: userId } }, { new: true }).populate(
+      "assignees",
+    )
+
+    res.json(card)
+  } catch (error) {
+    res.status(500).json({ message: "Failed to add assignee", error: error.message })
+  }
+}
+
+export const removeAssignee = async (req, res) => {
+  try {
+    const { userId } = req.body
+    const card = await Card.findByIdAndUpdate(req.params.id, { $pull: { assignees: userId } }, { new: true }).populate(
+      "assignees",
+    )
+
+    res.json(card)
+  } catch (error) {
+    res.status(500).json({ message: "Failed to remove assignee", error: error.message })
+  }
+}
