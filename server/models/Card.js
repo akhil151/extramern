@@ -33,6 +33,14 @@ const cardSchema = new mongoose.Schema(
         timestamp: { type: Date, default: Date.now },
       },
     ],
+    elements: {
+      type: Array,
+      default: [],
+    },
+    connectors: {
+      type: Array,
+      default: [],
+    },
     createdAt: {
       type: Date,
       default: Date.now,

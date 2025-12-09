@@ -7,6 +7,7 @@ import Register from "./pages/Register"
 import Dashboard from "./pages/Dashboard"
 import Board from "./pages/Board"
 import Profile from "./pages/profile"
+import CardWorkspace from "./pages/CardWorkspace"
 
 function App() {
   const { user, checkAuth } = useUserStore()
@@ -23,6 +24,7 @@ function App() {
         <Route element={<ProtectedRoute user={user} />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/board/:id" element={<Board />} />
+          <Route path="/board/:boardId/list/:listId/card/:cardId" element={<CardWorkspace />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />

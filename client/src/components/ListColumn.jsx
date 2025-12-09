@@ -68,9 +68,10 @@ export default function ListColumn({ list, boardId, socket, onRefresh, colorClas
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`space-y-3 min-h-80 max-h-96 overflow-y-auto rounded-2xl transition-all duration-200 p-3 ${
+            className={`space-y-3 min-h-80 rounded-2xl transition-all duration-200 p-3 ${
               snapshot.isDraggingOver ? "bg-white/60 ring-2 ring-offset-2 ring-slate-400" : "bg-white/30"
             }`}
+            style={{ maxHeight: "384px", overflowY: "auto" }}
           >
             {list.cards && list.cards.length > 0 ? (
               list.cards
