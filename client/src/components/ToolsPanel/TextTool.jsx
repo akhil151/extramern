@@ -1,6 +1,5 @@
-"use client"
-
 import { useState } from "react"
+import PropTypes from "prop-types"
 import { Type, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from "lucide-react"
 
 export default function TextToolPanel({ onAddText }) {
@@ -144,4 +143,8 @@ export default function TextToolPanel({ onAddText }) {
       </div>
     </div>
   )
+}
+
+TextToolPanel.propTypes = {
+  onAddText: PropTypes.func.isRequired
 }

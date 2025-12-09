@@ -1,6 +1,5 @@
-"use client"
-
 import { useState } from "react"
+import PropTypes from "prop-types"
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd"
 import ListColumn from "./ListColumn"
 import CreateListForm from "./CreateListForm"
@@ -12,20 +11,15 @@ export default function BoardList({ board, socket, onRefresh }) {
   const handleDragEnd = async (result) => {
     const { source, destination, type, draggableId } = result
 
-    console.log("[v0] Drag ended:", { source, destination, type, draggableId })
-
     if (!destination) {
-      console.log("[v0] No destination, ignoring drag")
       return
     }
 
     if (source.index === destination.index && source.droppableId === destination.droppableId) {
-      console.log("[v0] Same position, ignoring drag")
       return
     }
 
     if (type === "list") {
-      console.log("[v0] Reordering lists")
       const listIds = board.lists?.map((l) => l._id) || []
       const newListIds = Array.from(listIds)
       newListIds.splice(source.index, 1)
@@ -34,24 +28,23 @@ export default function BoardList({ board, socket, onRefresh }) {
       try {
         const token = localStorage.getItem("token")
         await axios.post(
-          `${import.meta.env.VITE_API_URL}/lists/reorder`,
+          `${import.meta.env.VITE_API_URL}/api/lists/reorder`,
           { lists: newListIds },
           { headers: { Authorization: `Bearer ${token}` } },
         )
         if (socket) socket.emit("list:update", { boardId: board._id })
         onRefresh()
       } catch (error) {
-        console.error("[v0] Failed to reorder lists:", error)
+        console.error("Failed to reorder lists:", error)
       }
     } else if (type === "card") {
-      console.log("[v0] Moving card between lists")
       const fromListId = source.droppableId
       const toListId = destination.droppableId
 
       try {
         const token = localStorage.getItem("token")
         await axios.post(
-          `${import.meta.env.VITE_API_URL}/cards/${draggableId}/move`,
+          `${import.meta.env.VITE_API_URL}/api/cards/${draggableId}/move`,
           {
             fromList: fromListId,
             toList: toListId,
@@ -62,7 +55,7 @@ export default function BoardList({ board, socket, onRefresh }) {
         if (socket) socket.emit("card:move", { boardId: board._id })
         onRefresh()
       } catch (error) {
-        console.error("[v0] Failed to move card:", error)
+        console.error("Failed to move card:", error)
       }
     }
   }
@@ -82,52 +75,53 @@ export default function BoardList({ board, socket, onRefresh }) {
               transition: "background 0.2s ease",
             }}
           >
-            {board?.lists && board.lists.length > 0 ? (
-              board.lists.map((list, index) => {
-                const listColors = [
-                  "bg-yellow-50 border-yellow-300/40 shadow-lg shadow-yellow-200/20",
-                  "bg-pink-50 border-pink-300/40 shadow-lg shadow-pink-200/20",
-                  "bg-green-50 border-emerald-300/40 shadow-lg shadow-emerald-200/20",
-                  "bg-blue-50 border-blue-300/40 shadow-lg shadow-blue-200/20",
-                ]
-                const colorClass = listColors[index % 4]
+            {/* Render existing lists */}
+            {board?.lists && board.lists.length > 0 ? board.lists.map((list, index) => {
+              const listColors = [
+                "bg-yellow-50 border-yellow-300/40 shadow-lg shadow-yellow-200/20",
+                "bg-pink-50 border-pink-300/40 shadow-lg shadow-pink-200/20",
+                "bg-green-50 border-emerald-300/40 shadow-lg shadow-emerald-200/20",
+                "bg-blue-50 border-blue-300/40 shadow-lg shadow-blue-200/20",
+              ]
+              const colorClass = listColors[index % 4]
 
-                return (
-                  <Draggable key={list._id} draggableId={list._id} index={index}>
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        style={{
-                          ...provided.draggableProps.style,
-                          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                        }}
-                        className={`flex-shrink-0 w-96 ${snapshot.isDragging ? "opacity-50 scale-95" : ""}`}
-                      >
-                        <ListColumn
-                          list={list}
-                          boardId={board._id}
-                          socket={socket}
-                          onRefresh={onRefresh}
-                          colorClass={colorClass}
-                        />
-                      </div>
-                    )}
-                  </Draggable>
-                )
-              })
-            ) : (
-              <div className="w-full flex items-center justify-center py-20">
+              return (
+                <Draggable key={String(list._id)} draggableId={String(list._id)} index={index}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      style={{
+                        ...provided.draggableProps.style,
+                        transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                      }}
+                      className={`flex-shrink-0 w-96 ${snapshot.isDragging ? "opacity-50 scale-95" : ""}`}
+                    >
+                      <ListColumn
+                        list={list}
+                        boardId={board._id}
+                        socket={socket}
+                        onRefresh={onRefresh}
+                        colorClass={colorClass}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              )
+            }) : (
+              /* Empty state when no lists */
+              <div className="flex-shrink-0 w-96 flex items-center justify-center min-h-96">
                 <div className="text-center">
                   <div className="text-6xl mb-4">📋</div>
-                  <p className="text-slate-500 font-semibold">No lists yet. Create one to get started!</p>
+                  <h3 className="text-xl font-bold text-slate-700 mb-2">No lists yet</h3>
+                  <p className="text-slate-500 font-semibold">Create your first list to get started!</p>
                 </div>
               </div>
             )}
             {provided.placeholder}
 
-            {/* Add List Button */}
+            {/* Add List Button - Always visible */}
             <div className="flex-shrink-0 w-96">
               {showCreateList ? (
                 <div className="animate-slide-in-up">
@@ -165,4 +159,10 @@ export default function BoardList({ board, socket, onRefresh }) {
       </Droppable>
     </DragDropContext>
   )
+}
+
+BoardList.propTypes = {
+  board: PropTypes.object.isRequired,
+  socket: PropTypes.object,
+  onRefresh: PropTypes.func.isRequired
 }

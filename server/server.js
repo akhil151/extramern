@@ -31,11 +31,15 @@ import authRoutes from "./routes/auth.js"
 import boardRoutes from "./routes/board.js"
 import listRoutes from "./routes/list.js"
 import cardRoutes from "./routes/card.js"
+import userRoutes from "./routes/user.js"
+import connectorRoutes from "./routes/connector.js"
 
 app.use("/api/auth", authRoutes)
 app.use("/api/boards", boardRoutes)
 app.use("/api/lists", listRoutes)
 app.use("/api/cards", cardRoutes)
+app.use("/api/users", userRoutes)
+app.use("/api/connectors", connectorRoutes)
 
 app.get("/", (req, res) => {
   res.send("Collaboration Board Server Running")

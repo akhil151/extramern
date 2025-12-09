@@ -1,7 +1,6 @@
-"use client"
-
 import { ImageIcon, Upload } from "lucide-react"
 import { useState } from "react"
+import PropTypes from "prop-types"
 
 export default function ImageToolPanel({ onAddImage }) {
   const [imageUrl, setImageUrl] = useState("")
@@ -89,4 +88,8 @@ export default function ImageToolPanel({ onAddImage }) {
       </div>
     </div>
   )
+}
+
+ImageToolPanel.propTypes = {
+  onAddImage: PropTypes.func.isRequired
 }

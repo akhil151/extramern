@@ -15,7 +15,7 @@ export const useUserStore = create((set) => ({
 
     try {
       set({ loading: true })
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       set({ user: response.data, token })

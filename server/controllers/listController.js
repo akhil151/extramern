@@ -1,5 +1,6 @@
 import List from "../models/List.js"
 import Card from "../models/Card.js"
+import { io } from "../server.js"
 
 export const createList = async (req, res) => {
   try {
@@ -18,6 +19,9 @@ export const createList = async (req, res) => {
     await Board.findByIdAndUpdate(board, { $push: { lists: savedList._id } })
 
     await savedList.populate("cards")
+
+    // Emit socket event for real-time updates
+    io.to(`board-${board}`).emit("list:created", { listId: savedList._id, boardId: board })
 
     res.status(201).json(savedList)
   } catch (error) {
@@ -50,6 +54,9 @@ export const deleteList = async (req, res) => {
     // Remove the list from the board's lists array
     const Board = (await import("../models/Board.js")).default
     await Board.findByIdAndUpdate(list.board, { $pull: { lists: req.params.id } })
+
+    // Emit socket event for real-time updates
+    io.to(`board-${list.board}`).emit("list:deleted", { listId: req.params.id, boardId: list.board })
 
     res.json({ message: "List deleted" })
   } catch (error) {

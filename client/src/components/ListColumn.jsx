@@ -1,6 +1,5 @@
-"use client"
-
 import { Droppable, Draggable } from "react-beautiful-dnd"
+import PropTypes from "prop-types"
 import CardItem from "./CardItem"
 import CreateCardForm from "./CreateCardForm"
 import { useState } from "react"
@@ -14,7 +13,7 @@ export default function ListColumn({ list, boardId, socket, onRefresh, colorClas
     if (window.confirm("Delete this list?")) {
       try {
         const token = localStorage.getItem("token")
-        await axios.delete(`${import.meta.env.VITE_API_URL}/lists/${list._id}`, {
+        await axios.delete(`${import.meta.env.VITE_API_URL}/api/lists/${list._id}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         onRefresh()
@@ -64,7 +63,7 @@ export default function ListColumn({ list, boardId, socket, onRefresh, colorClas
       </div>
 
       {/* Cards Container */}
-      <Droppable droppableId={list._id} type="card">
+      <Droppable droppableId={String(list._id)} type="card">
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
@@ -74,20 +73,22 @@ export default function ListColumn({ list, boardId, socket, onRefresh, colorClas
             }`}
           >
             {list.cards && list.cards.length > 0 ? (
-              list.cards.map((card, index) => (
-                <Draggable key={card._id} draggableId={card._id} index={index}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      className={`transition-all duration-150 ${snapshot.isDragging ? "opacity-40 scale-95 shadow-2xl" : ""}`}
-                    >
-                      <CardItem card={card} />
-                    </div>
-                  )}
-                </Draggable>
-              ))
+              list.cards
+                .filter((card) => card && card._id)
+                .map((card, index) => (
+                  <Draggable key={String(card._id)} draggableId={String(card._id)} index={index}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className={`transition-all duration-150 ${snapshot.isDragging ? "opacity-40 scale-95 shadow-2xl" : ""}`}
+                      >
+                        <CardItem card={card} />
+                      </div>
+                    )}
+                  </Draggable>
+                ))
             ) : (
               <div className="h-full flex items-center justify-center">
                 <p className="text-slate-400 text-sm font-medium">Drop cards here</p>
@@ -129,4 +130,12 @@ export default function ListColumn({ list, boardId, socket, onRefresh, colorClas
       )}
     </div>
   )
+}
+
+ListColumn.propTypes = {
+  list: PropTypes.object.isRequired,
+  boardId: PropTypes.string.isRequired,
+  socket: PropTypes.object,
+  onRefresh: PropTypes.func.isRequired,
+  colorClass: PropTypes.string
 }

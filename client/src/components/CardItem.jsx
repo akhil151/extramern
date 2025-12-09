@@ -1,4 +1,4 @@
-"use client"
+import PropTypes from "prop-types"
 
 export default function CardItem({ card }) {
   return (
@@ -34,4 +34,8 @@ export default function CardItem({ card }) {
       </div>
     </div>
   )
+}
+
+CardItem.propTypes = {
+  card: PropTypes.object.isRequired
 }

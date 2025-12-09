@@ -6,6 +6,7 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Dashboard from "./pages/Dashboard"
 import Board from "./pages/Board"
+import Profile from "./pages/profile"
 
 function App() {
   const { user, checkAuth } = useUserStore()
@@ -15,13 +16,14 @@ function App() {
   }, [checkAuth])
 
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route element={<ProtectedRoute user={user} />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/board/:id" element={<Board />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
       </Routes>

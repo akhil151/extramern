@@ -1,7 +1,6 @@
-"use client"
-
 import { Square, Circle, Hexagon, Triangle } from "lucide-react"
 import { useState } from "react"
+import PropTypes from "prop-types"
 
 export default function ShapesToolPanel({ onAddShape }) {
   const [selectedColor, setSelectedColor] = useState("#9333ea")
@@ -71,4 +70,8 @@ export default function ShapesToolPanel({ onAddShape }) {
       </div>
     </div>
   )
+}
+
+ShapesToolPanel.propTypes = {
+  onAddShape: PropTypes.func.isRequired
 }

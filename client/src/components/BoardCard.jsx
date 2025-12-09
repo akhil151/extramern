@@ -1,19 +1,20 @@
-"use client"
-
 import { useNavigate } from "react-router-dom"
+import PropTypes from "prop-types"
 import axios from "axios"
 
 export default function BoardCard({ board, onRefresh }) {
   const navigate = useNavigate()
 
   const boardGradients = [
-    "from-purple-600/20 to-purple-400/10 hover:from-purple-600/40 hover:to-purple-400/20 border-purple-500/30 hover:border-purple-400/60",
-    "from-cyan-600/20 to-cyan-400/10 hover:from-cyan-600/40 hover:to-cyan-400/20 border-cyan-500/30 hover:border-cyan-400/60",
-    "from-pink-600/20 to-pink-400/10 hover:from-pink-600/40 hover:to-pink-400/20 border-pink-500/30 hover:border-pink-400/60",
-    "from-emerald-600/20 to-emerald-400/10 hover:from-emerald-600/40 hover:to-emerald-400/20 border-emerald-500/30 hover:border-emerald-400/60",
+    "from-purple-500 to-purple-700 hover:from-purple-400 hover:to-purple-600 border-purple-400 hover:border-purple-300",
+    "from-cyan-500 to-cyan-700 hover:from-cyan-400 hover:to-cyan-600 border-cyan-400 hover:border-cyan-300",
+    "from-pink-500 to-pink-700 hover:from-pink-400 hover:to-pink-600 border-pink-400 hover:border-pink-300",
+    "from-emerald-500 to-emerald-700 hover:from-emerald-400 hover:to-emerald-600 border-emerald-400 hover:border-emerald-300",
+    "from-orange-500 to-orange-700 hover:from-orange-400 hover:to-orange-600 border-orange-400 hover:border-orange-300",
+    "from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 border-blue-400 hover:border-blue-300",
   ]
 
-  const gradient = boardGradients[board._id?.charCodeAt(0) % 4] || boardGradients[0]
+  const gradient = boardGradients[board._id?.charCodeAt(0) % boardGradients.length] || boardGradients[0]
 
   const handleDelete = async (e) => {
     e.stopPropagation()
@@ -21,7 +22,7 @@ export default function BoardCard({ board, onRefresh }) {
     if (window.confirm("Are you sure you want to delete this board?")) {
       try {
         const token = localStorage.getItem("token")
-        await axios.delete(`${import.meta.env.VITE_API_URL}/boards/${board._id}`, {
+        await axios.delete(`${import.meta.env.VITE_API_URL}/api/boards/${board._id}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         onRefresh()
@@ -34,14 +35,14 @@ export default function BoardCard({ board, onRefresh }) {
   return (
     <div
       onClick={() => navigate(`/board/${board._id}`)}
-      className={`glass rounded-2xl p-6 cursor-pointer transition-all duration-300 transform hover:scale-105 hover-lift group border bg-gradient-to-br ${gradient} animate-slide-in-up`}
+      className={`rounded-2xl p-6 cursor-pointer transition-all duration-300 transform hover:scale-105 hover-lift group border-2 bg-gradient-to-br ${gradient} animate-slide-in-up shadow-lg hover:shadow-2xl`}
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1 pr-4">
           <h3 className="text-xl font-bold text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-300 group-hover:to-cyan-300 group-hover:bg-clip-text transition-all">
             {board.title}
           </h3>
-          <p className="text-slate-400 text-sm mt-2 line-clamp-2">{board.description || "No description"}</p>
+          <p className="text-slate-300 text-sm mt-2 line-clamp-2">{board.description || "No description"}</p>
         </div>
         <button
           onClick={handleDelete}
@@ -61,7 +62,7 @@ export default function BoardCard({ board, onRefresh }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-4 h-4 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 group-hover:scale-125 transition-transform"></div>
-          <span className="text-slate-400 text-xs font-semibold">{board.lists?.length || 0} Lists</span>
+          <span className="text-slate-300 text-xs font-semibold">{board.lists?.length || 0} Lists</span>
         </div>
         <div className="flex -space-x-2">
           {board.members?.slice(0, 3).map((member) => (
@@ -82,4 +83,9 @@ export default function BoardCard({ board, onRefresh }) {
       </div>
     </div>
   )
+}
+
+BoardCard.propTypes = {
+  board: PropTypes.object.isRequired,
+  onRefresh: PropTypes.func.isRequired
 }

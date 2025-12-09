@@ -1,6 +1,7 @@
 import Board from "../models/Board.js"
 import List from "../models/List.js"
 import Card from "../models/Card.js"
+import { io } from "../server.js"
 
 export const createBoard = async (req, res) => {
   try {
@@ -16,6 +17,12 @@ export const createBoard = async (req, res) => {
 
     const savedBoard = await board.save()
     await savedBoard.populate("owner members")
+
+    // Emit socket event for real-time updates to owner and all members
+    io.to(`user-${req.userId}`).emit("board:created", { boardId: savedBoard._id, userId: req.userId })
+    savedBoard.members.forEach(memberId => {
+      io.to(`user-${memberId.toString()}`).emit("board:created", { boardId: savedBoard._id, userId: memberId.toString() })
+    })
 
     res.status(201).json(savedBoard)
   } catch (error) {
@@ -110,6 +117,11 @@ export const deleteBoard = async (req, res) => {
     if (board.owner.toString() !== req.userId) {
       return res.status(403).json({ message: "Unauthorized" })
     }
+
+    // Emit to all members before deleting
+    board.members.forEach(memberId => {
+      io.to(`user-${memberId.toString()}`).emit("board:deleted", { boardId: req.params.id, userId: memberId.toString() })
+    })
 
     await List.deleteMany({ board: req.params.id })
     await Card.deleteMany({ board: req.params.id })

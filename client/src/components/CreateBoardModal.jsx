@@ -1,6 +1,5 @@
-"use client"
-
 import { useState } from "react"
+import PropTypes from "prop-types"
 import axios from "axios"
 
 export default function CreateBoardModal({ onClose, onBoardCreated }) {
@@ -25,7 +24,7 @@ export default function CreateBoardModal({ onClose, onBoardCreated }) {
     try {
       const token = localStorage.getItem("token")
       await axios.post(
-        `${import.meta.env.VITE_API_URL}/boards`,
+        `${import.meta.env.VITE_API_URL}/api/boards`,
         { title, description, color },
         { headers: { Authorization: `Bearer ${token}` } },
       )
@@ -112,4 +111,9 @@ export default function CreateBoardModal({ onClose, onBoardCreated }) {
       </div>
     </div>
   )
+}
+
+CreateBoardModal.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  onBoardCreated: PropTypes.func.isRequired
 }

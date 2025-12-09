@@ -1,6 +1,5 @@
-"use client"
-
 import { useState } from "react"
+import PropTypes from "prop-types"
 import axios from "axios"
 
 export default function CardModal({ card, onClose, onUpdate }) {
@@ -15,7 +14,7 @@ export default function CardModal({ card, onClose, onUpdate }) {
     try {
       const token = localStorage.getItem("token")
       await axios.put(
-        `${import.meta.env.VITE_API_URL}/cards/${card._id}`,
+        `${import.meta.env.VITE_API_URL}/api/cards/${card._id}`,
         { title, description },
         { headers: { Authorization: `Bearer ${token}` } },
       )
@@ -90,4 +89,10 @@ export default function CardModal({ card, onClose, onUpdate }) {
       </div>
     </div>
   )
+}
+
+CardModal.propTypes = {
+  card: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired
 }
