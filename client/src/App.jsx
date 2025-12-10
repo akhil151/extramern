@@ -6,12 +6,9 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Dashboard from "./pages/Dashboard"
 import Board from "./pages/Board"
-<<<<<<< HEAD
 import Profile from "./pages/profile"
 import CardWorkspace from "./pages/CardWorkspace"
-=======
-import Profile from "./pages/Profile"
->>>>>>> d8639a34d8464ff62a5f007254213bb8824218a4
+
 
 function App() {
   const { user, checkAuth } = useUserStore()
