@@ -6,7 +6,7 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Dashboard from "./pages/Dashboard"
 import Board from "./pages/Board"
-import Profile from "./pages/profile"
+import Profile from "./pages/Profile"
 
 function App() {
   const { user, checkAuth } = useUserStore()
